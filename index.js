@@ -1,10 +1,12 @@
-var vm = require('vm')
+const vm = require('vm');
 
-module.exports = function safeEval (code, context, opts) {
-  var sandbox = {}
-  var resultKey = 'SAFE_EVAL_' + Math.floor(Math.random() * 1000000)
-  sandbox[resultKey] = {}
-  var clearContext = `
+module.exports = function safeEval(code, context, opts) {
+  const sandbox = {};
+  
+  const resultKey = 'SAFE_EVAL_' + Math.floor(Math.random() * 1000000);
+  sandbox[resultKey] = {};
+
+  const clearContext = `
     (function() {
       Function = undefined;
       const keys = Object.getOwnPropertyNames(this).concat(['constructor']);
@@ -14,13 +16,17 @@ module.exports = function safeEval (code, context, opts) {
         this[key].constructor = undefined;
       });
     })();
-  `
-  code = clearContext + resultKey + '=' + code
+  `;
+
+  code = clearContext + resultKey + '=' + code;
+
   if (context) {
     Object.keys(context).forEach(function (key) {
       sandbox[key] = context[key]
-    })
+    });
   }
-  vm.runInNewContext(code, sandbox, opts)
-  return sandbox[resultKey]
+
+  vm.runInNewContext(code, sandbox, opts);
+
+  return sandbox[resultKey];
 }
